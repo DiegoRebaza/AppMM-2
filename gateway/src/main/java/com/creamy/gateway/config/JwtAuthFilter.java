@@ -38,7 +38,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
             String path = request.getURI().getPath();
             HttpMethod method = request.getMethod();
 
-            // 1. Permitir preflight CORS y rutas públicas
+            // 1. Permitir preflight CORS y rutas públicas (incluye Swagger)
             if (method == HttpMethod.OPTIONS || esRutaPublica(path, method)) {
                 return chain.filter(exchange);
             }
@@ -59,7 +59,10 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
                         .getPayload();
 
                 String email = claims.getSubject();
-                String role = claims.get("rol", String.class);
+                String role = claims.get("role", String.class);
+                if (role == null) {
+                    role = claims.get("rol", String.class);
+                }
 
                 // 3. Validar permisos de administrador para gestionar productos
                 if (path.startsWith("/productos") && method != HttpMethod.GET) {
@@ -87,6 +90,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
         if (path.startsWith("/productos") && method == HttpMethod.GET) return true;
         if (path.startsWith("/contenido/blogs") && method == HttpMethod.GET) return true;
         if (path.equals("/contenido/contacto") && method == HttpMethod.POST) return true;
+        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) return true;
         return false;
     }
 
