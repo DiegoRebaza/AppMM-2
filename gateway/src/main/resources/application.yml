@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:8d5hg01g8yt91p6tczc5auxkao4u8og9m9e02x7lv64q4ref97ahh2il5sgsfck3h4h94sj9wlardkeh}
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - JwtAuthFilter
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - "http://localhost:5173"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
+          routes:
+            - id: auth-service
+              uri: http://localhost:9080
+              predicates:
+                - Path=/auth/**
+
+            - id: producto-service
+              uri: http://localhost:9081
+              predicates:
+                - Path=/productos/**
+
+            - id: compra-service
+              uri: http://localhost:9082
+              predicates:
+                - Path=/compras/**
+
+            - id: contenido-service
+              uri: http://localhost:9083
+              predicates:
+                - Path=/contenido/**
