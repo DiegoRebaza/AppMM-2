@@ -12,11 +12,10 @@
 
 Rutas del gateway:
 
-- `/auth/**`, `/api/usuarios/**` → auth
-- `/api/productos/**`, `/api/categorias/**` → producto
-- `/api/compras/**`, `/api/reservas/**` → compra
-- `/api/blog/**`, `/api/contacto/**` → contenido
-- `/internal/**` NO se expone (solo compra → producto, con `X-Internal-Key`)
+- `/auth/**`, `/usuarios/**` → auth
+- `/productos/**`, `/categorias/**` → producto
+- `/compras/**`, `/reservas/**` → compra
+- `/blog/**`, `/contacto/**` → contenido
 
 ## Orden de arranque
 
@@ -38,31 +37,6 @@ Rutas del gateway:
 | `AUTH_URL`, `COMPRA_URL`, `CONTENIDO_URL` | gateway | http://localhost:908x | |
 | `CORS_ORIGINS` | gateway | http://localhost:5173,http://localhost:3000 | Dominio del front en AWS |
 
-## Prueba de punta a punta (todo vía gateway, puerto 8080)
-
-```bash
-# 1. Login como admin
-curl -s -X POST http://localhost:8080/auth/login -H "Content-Type: application/json" \
-  -d '{"email":"admin@pasteleria.cl","password":"Admin12345!"}'
-# -> copiar "accessToken"
-
-# 2. Catálogo público (sin token)
-curl -s http://localhost:8080/api/productos
-
-# 3. Registrar un cliente y comprar
-curl -s -X POST http://localhost:8080/auth/register -H "Content-Type: application/json" \
-  -d '{"nombre":"Camila Silva","email":"camila@mail.com","password":"clave12345"}'
-# -> copiar el accessToken del cliente
-
-curl -s -X POST http://localhost:8080/api/compras \
-  -H "Authorization: Bearer TOKEN_DEL_CLIENTE" -H "Content-Type: application/json" \
-  -d '{"items":[{"productoId":2,"cantidad":2}],"tipoEntrega":"DOMICILIO",
-       "direccionEntrega":"Av. Siempre Viva 123","comuna":"Santiago","metodoPago":"TARJETA",
-       "titular":"Camila Silva","numeroTarjeta":"4242 4242 4242 4242","vencimiento":"12/30","cvv":"123"}'
-
-# 4. Verificar que NO se expone lo interno (debe dar 404)
-curl -i -X POST http://localhost:8080/internal/productos/descontar-stock
-```
 
 ## Swagger de cada servicio (para la defensa)
 
@@ -87,4 +61,3 @@ curl -i -X POST http://localhost:8080/internal/productos/descontar-stock
 - No hay transacción distribuida entre compra y producto (se compensa reponiendo stock; un patrón Saga sería lo ideal).
 - Los refresh tokens no se pueden revocar antes de expirar (no hay lista de tokens en base de datos).
 - El pago está simulado; en un caso real se integraría Webpay u otra pasarela.
-- El código fue escrito sin compilarse en el entorno de generación: la primera compilación en IntelliJ es la validación.
