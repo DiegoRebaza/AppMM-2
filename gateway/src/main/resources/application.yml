@@ -1,80 +1,97 @@
 server:
   port: 8080
 
+jwt:
+  secret: ${JWT_SECRET:8d5hg01g8yt91p6tczc5auxkao4u8og9m9e02x7lv64q4ref97ahh2il5sgsfck3h4h94sj9wlardkeh}
+
 spring:
   application:
     name: gateway
   cloud:
     gateway:
-      routes:
-        # --- Rutas de tus microservicios ---
-        - id: auth-service
-          uri: http://localhost:9080
-          predicates:
-            - Path=/auth/**
-          filters:
-            - JwtAuthFilter
+      server:
+        webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - "${FRONTEND_URL:http://localhost:5173}"
+                  - "${GATEWAY_URL:http://localhost:8080}"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+          routes:
+            # --- Rutas de Microservicios ---
+            - id: auth-service
+              uri: ${AUTH_URL:http://localhost:9080}
+              predicates:
+                - Path=/auth/**
+              filters:
+                - JwtAuthFilter
 
-        - id: producto-service
-          uri: http://localhost:9081
-          predicates:
-            - Path=/productos/**
-          filters:
-            - JwtAuthFilter
+            - id: producto-service
+              uri: ${PRODUCTO_URL:http://localhost:9081}
+              predicates:
+                - Path=/productos/**
+              filters:
+                - JwtAuthFilter
 
-        - id: compra-service
-          uri: http://localhost:9082
-          predicates:
-            - Path=/compras/**
-          filters:
-            - JwtAuthFilter
+            - id: compra-service
+              uri: ${COMPRA_URL:http://localhost:9082}
+              predicates:
+                - Path=/compras/**
+              filters:
+                - JwtAuthFilter
 
-        - id: contenido-service
-          uri: http://localhost:9083
-          predicates:
-            - Path=/contenido/**
-          filters:
-            - JwtAuthFilter
+            - id: contenido-service
+              uri: ${CONTENIDO_URL:http://localhost:9083}
+              predicates:
+                - Path=/contenido/**
+              filters:
+                - JwtAuthFilter
 
-        # Swagger
-        - id: auth-openapi
-          uri: http://localhost:9080
-          predicates:
-            - Path=/v3/api-docs/auth
-          filters:
-            - RewritePath=/v3/api-docs/auth, /v3/api-docs
+            # --- Rutas OpenAPI para Swagger UI centralizado ---
+            - id: auth-openapi
+              uri: ${AUTH_URL:http://localhost:9080}
+              predicates:
+                - Path=/v3/api-docs/auth
+              filters:
+                - RewritePath=/v3/api-docs/auth, /v3/api-docs
 
-        - id: producto-openapi
-          uri: http://localhost:9081
-          predicates:
-            - Path=/v3/api-docs/producto
-          filters:
-            - RewritePath=/v3/api-docs/producto, /v3/api-docs
+            - id: producto-openapi
+              uri: ${PRODUCTO_URL:http://localhost:9081}
+              predicates:
+                - Path=/v3/api-docs/producto
+              filters:
+                - RewritePath=/v3/api-docs/producto, /v3/api-docs
 
-        - id: compra-openapi
-          uri: http://localhost:9082
-          predicates:
-            - Path=/v3/api-docs/compra
-          filters:
-            - RewritePath=/v3/api-docs/compra, /v3/api-docs
+            - id: compra-openapi
+              uri: ${COMPRA_URL:http://localhost:9082}
+              predicates:
+                - Path=/v3/api-docs/compra
+              filters:
+                - RewritePath=/v3/api-docs/compra, /v3/api-docs
 
-        - id: contenido-openapi
-          uri: http://localhost:9083
-          predicates:
-            - Path=/v3/api-docs /contenido
-          filters:
-            - RewritePath=/v3/api-docs/contenido, /v3/api-docs
+            - id: contenido-openapi
+              uri: ${CONTENIDO_URL:http://localhost:9083}
+              predicates:
+                - Path=/v3/api-docs/contenido
+              filters:
+                - RewritePath=/v3/api-docs/contenido, /v3/api-docs
 
-# --- Configuración de Swagger UI centralizado ---
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
     urls:
-      - name: Auth Service
+      - name: 1. Auth Service
         url: /v3/api-docs/auth
-      - name: Producto Service
+      - name: 2. Producto Service
         url: /v3/api-docs/producto
-      - name: Compra Service
+      - name: 3. Compra Service
         url: /v3/api-docs/compra
-      - name: Contenido Service
+      - name: 4. Contenido Service
         url: /v3/api-docs/contenido
