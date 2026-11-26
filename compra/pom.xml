@@ -8,11 +8,11 @@
 		<version>4.1.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.creamy</groupId>
-	<artifactId>compra</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<groupId>compra.pasteleria</groupId>
+    <artifactId>compra</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>compra</name>
+    <description>Microservicio de compras y reservas - Pastelería</description>
 	<url/>
 	<licenses>
 		<license/>
