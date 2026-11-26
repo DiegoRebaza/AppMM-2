@@ -12,7 +12,7 @@
 	<artifactId>auth</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>auth</name>
-    <description>Microservicio de autenticación - Pastelería</description>
+    <description>Microservicio de Autenticacion - Creamy</description>
 
 	<url/>
 	<licenses>
