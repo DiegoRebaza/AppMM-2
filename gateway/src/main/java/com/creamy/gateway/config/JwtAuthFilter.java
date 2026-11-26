@@ -59,11 +59,11 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
                         .getPayload();
 
                 String email = claims.getSubject();
-                String rol = claims.get("rol", String.class);
+                String role = claims.get("rol", String.class);
 
                 // 3. Validar permisos de administrador para gestionar productos
                 if (path.startsWith("/productos") && method != HttpMethod.GET) {
-                    if (rol == null || !rol.equalsIgnoreCase("admin")) {
+                    if (role == null || !role.equalsIgnoreCase("admin")) {
                         return responderError(exchange, HttpStatus.FORBIDDEN, "Acceso denegado: requiere rol admin");
                     }
                 }
@@ -71,7 +71,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
                 // 4. Reenviar identidad del usuario hacia los microservicios internos
                 ServerHttpRequest mutatedRequest = request.mutate()
                         .header("X-User-Email", email != null ? email : "")
-                        .header("X-User-Role", rol != null ? rol : "")
+                        .header("X-User-Role", role != null ? role : "")
                         .build();
 
                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
